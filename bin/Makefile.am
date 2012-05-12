@@ -1,0 +1,25 @@
+#-------------------------------------------------------------------------------
+# Copyright (C) 2012, Robert Johansson <rob@raditex.nu>, Raditex Control AB
+# All rights reserved.
+#
+# This file is part of rSCADA.
+# http://www.rSCADA.se
+# info@rscada.se
+# 
+#-------------------------------------------------------------------------------
+
+PACKAGE	= @PACKAGE@
+VERSION	= @VERSION@
+
+AM_CPPFLAGS	= -I$(top_builddir) -I$(top_srcdir)
+
+noinst_HEADERS			= 
+bin_PROGRAMS			= modbus-tcp-holding-register
+
+# tcp
+modbus_tcp_holding_register_LDFLAGS	= -L$(top_builddir)/modbus
+modbus_tcp_holding_register_LDADD	= -lmodbus 
+modbus_tcp_holding_register_SOURCES	= modbus-tcp-holding-register.c 
+
+# udp
+

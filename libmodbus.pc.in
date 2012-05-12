@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libmodbus
+Description: Open source MODBUS library from Raditex Control AB.
+Requires: 
+Version: @PACKAGE_VERSION@
+URL: http://www.rscada.se/libmodbus/
+Libs: -L${libdir} -lmodbus
+Cflags: -I${includedir}
