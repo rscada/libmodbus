@@ -14,12 +14,21 @@ VERSION	= @VERSION@
 AM_CPPFLAGS	= -I$(top_builddir) -I$(top_srcdir)
 
 noinst_HEADERS			= 
-bin_PROGRAMS			= modbus-tcp-holding-register
+bin_PROGRAMS			= modbus-tcp-holding-register modbus-tcp-discrete-input \
+                          modbus-tcp-discrete-output
 
 # tcp
 modbus_tcp_holding_register_LDFLAGS	= -L$(top_builddir)/modbus
 modbus_tcp_holding_register_LDADD	= -lmodbus 
 modbus_tcp_holding_register_SOURCES	= modbus-tcp-holding-register.c 
+
+modbus_tcp_discrete_input_LDFLAGS	= -L$(top_builddir)/modbus
+modbus_tcp_discrete_input_LDADD	= -lmodbus 
+modbus_tcp_discrete_input_SOURCES	= modbus-tcp-discrete-input.c
+
+modbus_tcp_discrete_output_LDFLAGS	= -L$(top_builddir)/modbus
+modbus_tcp_discrete_output_LDADD	= -lmodbus 
+modbus_tcp_discrete_output_SOURCES	= modbus-tcp-discrete-output.c
 
 # udp
 
