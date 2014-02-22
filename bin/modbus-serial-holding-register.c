@@ -25,7 +25,7 @@ void
 usage(char *program_name)
 {
     printf("usage: %s DEVICE COMMAND ADDRESS [RANGE] [VALUE]\n", program_name);
-    printf("\tHOST    = ip address or FQDN\n");
+    printf("\DEVICE   = a TTY device\n");
     printf("\tCOMMAND = read | write\n");    
     printf("\tADDRESS = 0x0000 - 0xFFFF (register address)\n");
     printf("\tRANGE   = 0x0000 - 0xFFFF (for command = read)\n");    
@@ -79,7 +79,7 @@ main(int argc, char **argv)
     }
 
     // setup serial connection
-    if ((handle = modbus_serial_connect(device, baudrate)) != 0)
+    if ((handle = modbus_serial_connect(device, baudrate)) == NULL)
     {
         printf("%s: modbus_serial_connect failed: %s.\n", __PRETTY_FUNCTION__, modbus_error_str);
         return 0;
