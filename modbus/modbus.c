@@ -316,8 +316,8 @@ modbus_rtu_frame_pack(modbus_frame_t *pkt, char *data_buff, size_t data_buff_siz
     
     c = crc16(data_buff, idx);
     
-    data_buff[idx++] = 0xff & (c>>8);
     data_buff[idx++] = 0xff & c;
+    data_buff[idx++] = 0xff & (c>>8);
     
     return idx;
 }
