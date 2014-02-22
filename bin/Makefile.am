@@ -15,7 +15,7 @@ AM_CPPFLAGS	= -I$(top_builddir) -I$(top_srcdir)
 
 noinst_HEADERS			= 
 bin_PROGRAMS			= modbus-tcp-holding-register modbus-tcp-discrete-input \
-                          modbus-tcp-discrete-output
+                          modbus-tcp-discrete-output modbus-serial-holding-register
 
 # tcp
 modbus_tcp_holding_register_LDFLAGS	= -L$(top_builddir)/modbus
@@ -31,4 +31,10 @@ modbus_tcp_discrete_output_LDADD	= -lmodbus
 modbus_tcp_discrete_output_SOURCES	= modbus-tcp-discrete-output.c
 
 # udp
+
+
+# serial
+modbus_serial_holding_register_LDFLAGS	= -L$(top_builddir)/modbus
+modbus_serial_holding_register_LDADD	= -lmodbus 
+modbus_serial_holding_register_SOURCES	= modbus-serial-holding-register.c 
 
