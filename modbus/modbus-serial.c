@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <string.h>
 
-#define PACKET_BUFF_SIZE 2048
+#define frame_BUFF_SIZE 2048
 
 //#define MODBUS_HEADER_LENGTH + len
 static int debug = 1;
@@ -156,15 +156,15 @@ modbus_serial_disconnect(modbus_serial_handle_t *handle)
 //
 //------------------------------------------------------------------------------
 int
-modbus_serial_send(modbus_serial_handle_t *handle, modbus_packet_t *pkt)
+modbus_serial_send(modbus_serial_handle_t *handle, modbus_frame_t *pkt)
 {
-    u_char buff[PACKET_BUFF_SIZE];
+    u_char buff[frame_BUFF_SIZE];
     int len, ret;
 
     if (handle == 0 || pkt == NULL)
         return -1;
 
-    if ((len = modbus_packet_pack(pkt, buff, sizeof(buff))) == -1)
+    if ((len = modbus_rtu_frame_pack(pkt, buff, sizeof(buff))) == -1)
     {
         fprintf(stderr, "%s: modbus_frame_t_pack failed\n", __PRETTY_FUNCTION__);
         return -1;
@@ -198,9 +198,9 @@ modbus_serial_send(modbus_serial_handle_t *handle, modbus_packet_t *pkt)
 //
 //------------------------------------------------------------------------------
 int
-modbus_serial_recv(modbus_serial_handle_t *handle, modbus_packet_t *pkt)
+modbus_serial_recv(modbus_serial_handle_t *handle, modbus_frame_t *pkt)
 {
-    u_char buff[PACKET_BUFF_SIZE];
+    u_char buff[frame_BUFF_SIZE];
     int len, ret, i;
     
     bzero((void *)buff, sizeof(buff));
@@ -208,21 +208,37 @@ modbus_serial_recv(modbus_serial_handle_t *handle, modbus_packet_t *pkt)
     //
     // first read the MODBUS header
     //
-    if (read(handle->fd, buff, MODBUS_HEADER_LENGTH) != MODBUS_HEADER_LENGTH)
+    if (read(handle->fd, buff, MODBUS_RTU_HEADER_LENGTH+1) != MODBUS_RTU_HEADER_LENGTH+1)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
 		         "%s: failed to read modbus header from tcp socket", __PRETTY_FUNCTION__);
         return -1;
     }
 
-    modbus_header_parse(pkt, buff, MODBUS_HEADER_LENGTH);
-
+    modbus_rtu_header_parse(pkt, buff, MODBUS_RTU_HEADER_LENGTH);
+    
     //
-    // read the remaining data, if expected
+    // compute the length of the remaining data
     //
-    len = modbus_packet_get_length(pkt) - 2;
+    switch (pkt->hdr_rtu.func_code)
+    {
+        case MB_FUNC_READ_COIL_STATUS:
+        case MB_FUNC_READ_INPUT_STATUS:
+        case MB_FUNC_READ_INPUT_REGISTERS:
+        case MB_FUNC_READ_HOLDING_REGISTERS:
+            len = 2 + buff[2];        
+            break;
 
-    if (read(handle->fd, &buff[MODBUS_HEADER_LENGTH], len) != len)
+        case MB_FUNC_FORCE_SINGLE_COIL:
+        case MB_FUNC_PRESET_SINGLE_REGISTER:    
+            len = 5;        
+            break;   
+    
+        default:
+            len = 8;
+    }
+
+    if (read(handle->fd, &buff[MODBUS_RTU_HEADER_LENGTH+1], len) != len)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
 		         "%s: failed to read remaining modbus data from tcp socket", __PRETTY_FUNCTION__);
@@ -231,15 +247,15 @@ modbus_serial_recv(modbus_serial_handle_t *handle, modbus_packet_t *pkt)
 
     if (debug)
     {
-        printf("%s: Read %d bytes: ", __PRETTY_FUNCTION__, MODBUS_HEADER_LENGTH + len);
-        for (i = 0; i < MODBUS_HEADER_LENGTH + len; i++)
+        printf("%s: Read %d bytes: ", __PRETTY_FUNCTION__, MODBUS_RTU_HEADER_LENGTH + 1 + len);
+        for (i = 0; i < MODBUS_RTU_HEADER_LENGTH + 1 + len; i++)
         {
             printf("0x%.2x ", buff[i] & 0xFF);            
         }
         printf("\n");
     }    
 
-    return modbus_packet_parse(pkt, buff, MODBUS_HEADER_LENGTH + len);
+    return modbus_rtu_frame_parse(pkt, buff, MODBUS_RTU_HEADER_LENGTH + len);
 }
 
 

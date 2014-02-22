@@ -108,7 +108,7 @@ modbus_udp_init(char *host, int port, modbus_udp_handle_t *handle)
 //
 //------------------------------------------------------------------------------
 int
-modbus_udp_send(modbus_udp_handle_t *handle, modbus_packet_t *pkt)
+modbus_udp_send(modbus_udp_handle_t *handle, modbus_frame_t *pkt)
 {
     char buff[256];
     int len;
@@ -116,12 +116,12 @@ modbus_udp_send(modbus_udp_handle_t *handle, modbus_packet_t *pkt)
     if (pkt == NULL)
         return -1;
 
-	len = modbus_packet_pack(pkt, buff, sizeof(buff));	
+	len = modbus_tcp_frame_pack(pkt, buff, sizeof(buff));	
 
     if (sendto(handle->sock, buff, len, 0, (struct sockaddr *)&handle->saddr, sizeof(handle->saddr)) != len)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
-		         "%s: failed to send modbus UDP packet", __PRETTY_FUNCTION__);
+		         "%s: failed to send modbus UDP frame", __PRETTY_FUNCTION__);
         return -1;
     }
        
@@ -133,7 +133,7 @@ modbus_udp_send(modbus_udp_handle_t *handle, modbus_packet_t *pkt)
 //
 //------------------------------------------------------------------------------
 int
-modbus_udp_recv(modbus_udp_handle_t *handle, modbus_packet_t *pkt)
+modbus_udp_recv(modbus_udp_handle_t *handle, modbus_frame_t *pkt)
 {
     socklen_t fromlen;
     struct sockaddr_in caller;
@@ -144,7 +144,7 @@ modbus_udp_recv(modbus_udp_handle_t *handle, modbus_packet_t *pkt)
     fromlen = sizeof (caller);
     if ((len = recvfrom(handle->sock, buff, sizeof(buff), 0, (struct sockaddr *)&caller, &fromlen)) > 0)
     {    
-        return modbus_packet_parse(pkt, buff, len);
+        return modbus_tcp_frame_parse(pkt, buff, len);
     }
 
    return -1;

@@ -40,7 +40,7 @@ main(int argc, char **argv)
     int port = 502, i;
     uint16_t addr, value, range = 1;
     
-    modbus_packet_t     *pkt;    
+    modbus_frame_t     *pkt;    
     modbus_tcp_handle_t handle;
  
     if (argc != 4)
@@ -67,8 +67,8 @@ main(int argc, char **argv)
         usage(argv[0]);
     }
         
-    // setup request packet
-    pkt = modbus_packet_new();  
+    // setup request frame
+    pkt = modbus_frame_new();  
   
     modbus_read_input_status(pkt, addr, range);  
 
@@ -80,7 +80,7 @@ main(int argc, char **argv)
     }
 
     if (debug)
-        modbus_packet_print(pkt);
+        modbus_frame_print(pkt);
         
     // Send command
     if (modbus_tcp_send(&handle, pkt) != 0)
@@ -96,14 +96,14 @@ main(int argc, char **argv)
         return 0;       
     }
 
-    if (modbus_packet_verify(pkt) == -1)
+    if (modbus_frame_verify(pkt) == -1)
     {
-        printf("%s: modbus_packet_verify failed: %s\n", __PRETTY_FUNCTION__, modbus_error_str);
+        printf("%s: modbus_frame_verify failed: %s\n", __PRETTY_FUNCTION__, modbus_error_str);
         return 0;               
     }
 
     if (debug)
-        modbus_packet_print(pkt);
+        modbus_frame_print(pkt);
 
     for (i = range - 1; i >= 0; i--)
     {
@@ -111,7 +111,7 @@ main(int argc, char **argv)
     }
     printf("\n");
 
-    modbus_packet_free(pkt);
+    modbus_frame_free(pkt);
 
     return 0;
 }

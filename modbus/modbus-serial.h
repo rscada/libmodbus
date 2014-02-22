@@ -31,8 +31,8 @@ typedef struct __modbus_serial_handle {
 
 modbus_serial_handle_t *modbus_serial_connect(char *device, long baudrate);
 int modbus_serial_disconnect(modbus_serial_handle_t *handle);
-int modbus_serial_send(modbus_serial_handle_t *handle, modbus_packet_t *pkt);
-int modbus_serial_recv(modbus_serial_handle_t *handle, modbus_packet_t *pkt);
+int modbus_serial_send(modbus_serial_handle_t *handle, modbus_frame_t *pkt);
+int modbus_serial_recv(modbus_serial_handle_t *handle, modbus_frame_t *pkt);
 int modbus_serial_set_baudrate(modbus_serial_handle_t *handle, long baudrate);
 
 #ifdef __cplusplus

@@ -45,9 +45,9 @@ int modbus_tcp_init(char *host, int port, modbus_tcp_handle_t *handle);
 
 int modbus_tcp_close(modbus_tcp_handle_t *handle);
 
-int modbus_tcp_send(modbus_tcp_handle_t *handle, modbus_packet_t *pkt);
+int modbus_tcp_send(modbus_tcp_handle_t *handle, modbus_frame_t *pkt);
 
-int modbus_tcp_recv(modbus_tcp_handle_t *handle, modbus_packet_t *pkt);
+int modbus_tcp_recv(modbus_tcp_handle_t *handle, modbus_frame_t *pkt);
 
 int modbus_tcp_server_listen(modbus_tcp_handle_t *handle);
 int modbus_tcp_server_init(int port, modbus_tcp_handle_t *handle);

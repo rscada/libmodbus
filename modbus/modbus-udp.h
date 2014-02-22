@@ -44,8 +44,8 @@ int modbus_udp_init(char *host, int port, modbus_udp_handle_t *handle);
 
 int modbus_udp_close(modbus_udp_handle_t *handle);
 
-int modbus_udp_send(modbus_udp_handle_t *handle, modbus_packet_t *pkt);
+int modbus_udp_send(modbus_udp_handle_t *handle, modbus_frame_t *pkt);
 
-int modbus_udp_recv(modbus_udp_handle_t *handle, modbus_packet_t *pkt);
+int modbus_udp_recv(modbus_udp_handle_t *handle, modbus_frame_t *pkt);
 
 #endif /* _MODBUS_UDP_H_ */

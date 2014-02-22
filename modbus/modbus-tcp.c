@@ -169,7 +169,7 @@ modbus_tcp_server_listen(modbus_tcp_handle_t *handle)
 //
 //------------------------------------------------------------------------------
 int
-modbus_tcp_send(modbus_tcp_handle_t *handle, modbus_packet_t *pkt)
+modbus_tcp_send(modbus_tcp_handle_t *handle, modbus_frame_t *pkt)
 {
     char buff[256];
     int len;
@@ -177,12 +177,12 @@ modbus_tcp_send(modbus_tcp_handle_t *handle, modbus_packet_t *pkt)
     if (pkt == NULL)
         return -1;
 
-	len = modbus_packet_pack(pkt, buff, sizeof(buff));	
+	len = modbus_tcp_frame_pack(pkt, buff, sizeof(buff));	
 
     if (write(handle->sock, buff, len) != len)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
-		         "%s: failed to send modbus tcp packet [%s]", __PRETTY_FUNCTION__, strerror(errno));
+		         "%s: failed to send modbus tcp frame [%s]", __PRETTY_FUNCTION__, strerror(errno));
         return -1;
     }
        
@@ -194,7 +194,7 @@ modbus_tcp_send(modbus_tcp_handle_t *handle, modbus_packet_t *pkt)
 //
 //------------------------------------------------------------------------------
 int
-modbus_tcp_recv(modbus_tcp_handle_t *handle, modbus_packet_t *pkt)
+modbus_tcp_recv(modbus_tcp_handle_t *handle, modbus_frame_t *pkt)
 {
     char buff[256];
     int len;
@@ -202,27 +202,27 @@ modbus_tcp_recv(modbus_tcp_handle_t *handle, modbus_packet_t *pkt)
     //
     // first read the MODBUS header
     //
-    if (read(handle->sock, buff, MODBUS_HEADER_LENGTH) != MODBUS_HEADER_LENGTH)
+    if (read(handle->sock, buff, MODBUS_TCP_HEADER_LENGTH) != MODBUS_TCP_HEADER_LENGTH)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
 		         "%s: failed to read modbus header from tcp socket", __PRETTY_FUNCTION__);
         return -1;
     }
 
-    modbus_header_parse(pkt, buff, MODBUS_HEADER_LENGTH);
+    modbus_tcp_header_parse(pkt, buff, MODBUS_TCP_HEADER_LENGTH);
 
     //
     // read the remaining data, if expected
     //
-    len = modbus_packet_get_length(pkt) - 2;
+    len = modbus_frame_get_length(pkt) - 2;
 
-    if (read(handle->sock, &buff[MODBUS_HEADER_LENGTH], len) != len)
+    if (read(handle->sock, &buff[MODBUS_TCP_HEADER_LENGTH], len) != len)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
 		         "%s: failed to read remaining modbus data from tcp socket", __PRETTY_FUNCTION__);
         return -1;
     }
 
-    return modbus_packet_parse(pkt, buff, MODBUS_HEADER_LENGTH + len);
+    return modbus_tcp_frame_parse(pkt, buff, MODBUS_TCP_HEADER_LENGTH + len);
 }
 

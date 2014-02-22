@@ -19,7 +19,7 @@
 #include <modbus/modbus.h>
 #include <modbus/modbus-serial.h>
 
-static int debug = 0;
+static int debug = 1;
 
 void
 usage(char *program_name)
@@ -43,7 +43,7 @@ main(int argc, char **argv)
     long baudrate = 0;
     uint16_t addr, value, range, i, verbose = 1;
     
-    modbus_packet_t     *pkt;    
+    modbus_frame_t     *pkt;    
     modbus_serial_handle_t *handle;
  
     if (argc != 4 && argc != 5)
@@ -55,8 +55,8 @@ main(int argc, char **argv)
     device  = argv[1];
     command = argv[2];
     
-    // setup request packet
-    pkt = modbus_packet_new();      
+    // setup request frame
+    pkt = modbus_frame_new();      
     
     if (strcmp(command, "read") == 0)
     {
@@ -86,7 +86,7 @@ main(int argc, char **argv)
     }
 
     if (debug)
-        modbus_packet_print(pkt);
+        modbus_frame_print(pkt);
         
     // Send command
     if (modbus_serial_send(handle, pkt) != 0)
@@ -102,21 +102,21 @@ main(int argc, char **argv)
         return 0;       
     }
 
-    if (modbus_packet_verify(pkt) == -1)
+    if (modbus_frame_verify(pkt) == -1)
     {
-        printf("%s: modbus_packet_verify failed: %s\n", __PRETTY_FUNCTION__, modbus_error_str);
+        printf("%s: modbus_frame_verify failed: %s\n", __PRETTY_FUNCTION__, modbus_error_str);
         return 0;               
     }
 
     if (debug)
-        modbus_packet_print(pkt);
+        modbus_frame_print(pkt);
 
     if (strcmp(command, "read") == 0)
     {
         for (i = 0; i < range; i++)
         {
             value = (pkt->data_buff[3] * 255 + pkt->data_buff[4]);
-            value = modbus_packet_data_decode16(pkt, 1 + 2*i);
+            value = modbus_frame_data_decode16(pkt, 1 + 2*i);
             
             if (verbose)
             {
@@ -129,7 +129,7 @@ main(int argc, char **argv)
         }
     }
 
-    modbus_packet_free(pkt);
+    modbus_frame_free(pkt);
 
     return 0;
 }
