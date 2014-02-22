@@ -64,8 +64,13 @@ modbus_serial_connect(char *device, long baudrate)
     }
 
     bzero(&(handle->t), sizeof(handle->t));
-    handle->t.c_cflag |= (CS8|CREAD|CLOCAL);
+    handle->t.c_cflag |= (CREAD|CLOCAL);
     handle->t.c_cflag |= PARENB;
+    handle->t.c_cflags &= ~PARODD;
+    handle->t.c_cflags &= ~CSTOPB;
+    handle->t.c_cflags &= ~CSIZE;
+    handle->t.c_cflags |= CS7;    
+    
     handle->t.c_cc[VMIN]  = 0;
     handle->t.c_cc[VTIME] = 10;
 
@@ -211,7 +216,7 @@ modbus_serial_recv(modbus_serial_handle_t *handle, modbus_frame_t *pkt)
     if (read(handle->fd, buff, MODBUS_RTU_HEADER_LENGTH+1) != MODBUS_RTU_HEADER_LENGTH+1)
     {
 	    snprintf(modbus_error_str, sizeof(modbus_error_str),
-		         "%s: failed to read modbus header from tcp socket", __PRETTY_FUNCTION__);
+		         "%s: failed to read modbus header from serial device", __PRETTY_FUNCTION__);
         return -1;
     }
 
