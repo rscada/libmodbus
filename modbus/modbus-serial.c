@@ -66,10 +66,10 @@ modbus_serial_connect(char *device, long baudrate)
     bzero(&(handle->t), sizeof(handle->t));
     handle->t.c_cflag |= (CREAD|CLOCAL);
     handle->t.c_cflag |= PARENB;
-    handle->t.c_cflags &= ~PARODD;
-    handle->t.c_cflags &= ~CSTOPB;
-    handle->t.c_cflags &= ~CSIZE;
-    handle->t.c_cflags |= CS7;    
+    handle->t.c_cflag &= ~PARODD;
+    handle->t.c_cflag &= ~CSTOPB;
+    handle->t.c_cflag &= ~CSIZE;
+    handle->t.c_cflag |= CS7;    
     
     handle->t.c_cc[VMIN]  = 0;
     handle->t.c_cc[VTIME] = 10;
