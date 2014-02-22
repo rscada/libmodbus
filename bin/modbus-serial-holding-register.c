@@ -24,7 +24,7 @@ static int debug = 1;
 void
 usage(char *program_name)
 {
-    printf("usage: %s DEVICE COMMAND ADDRESS [RANGE] [VALUE]\n", program_name);
+    printf("usage: %s DEVICE COMMAND UNIT ADDRESS [RANGE] [VALUE]\n", program_name);
     printf("\DEVICE   = a TTY device\n");
     printf("\tCOMMAND = read | write\n");    
     printf("\tADDRESS = 0x0000 - 0xFFFF (register address)\n");
@@ -41,12 +41,12 @@ main(int argc, char **argv)
 {
     static char *device, *command;
     long baudrate = 0;
-    uint16_t addr, value, range, i, verbose = 1;
+    uint16_t unit, addr, value, range, i, verbose = 1;
     
     modbus_frame_t     *pkt;    
     modbus_serial_handle_t *handle;
  
-    if (argc != 4 && argc != 5)
+    if (argc != 5 && argc != 6)
     {
         printf("Error: Invalid arguments.\n\n");    
         usage(argv[0]);
@@ -54,21 +54,22 @@ main(int argc, char **argv)
  
     device  = argv[1];
     command = argv[2];
+    unit = atoi(argv[3]);
     
     // setup request frame
     pkt = modbus_frame_new();      
     
     if (strcmp(command, "read") == 0)
     {
-        addr = atoi(argv[3]);
-        range = (argc == 5) ? atoi(argv[4]) : 1;
+        addr = atoi(argv[4]);
+        range = (argc == 6) ? atoi(argv[5]) : 1;
         
         modbus_read_holding_registers(pkt, addr, range);          
     }
-    else if (strcmp(command, "write") == 0 && argc == 5)
+    else if (strcmp(command, "write") == 0 && argc == 6)
     {
-        addr  = atoi(argv[3]);
-        value = atoi(argv[4]);        
+        addr  = atoi(argv[4]);
+        value = atoi(argv[5]);        
         
         modbus_preset_single_register(pkt, addr, value);  
     }    
