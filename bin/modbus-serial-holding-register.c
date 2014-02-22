@@ -78,6 +78,8 @@ main(int argc, char **argv)
         printf("Error: Invalid COMMAND: %s\n\n", command);
         usage(argv[0]);
     }
+    
+    modbus_frame_set_unit(pkt, unit);
 
     // setup serial connection
     if ((handle = modbus_serial_connect(device, baudrate)) == NULL)
