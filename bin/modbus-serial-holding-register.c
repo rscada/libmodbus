@@ -25,8 +25,9 @@ void
 usage(char *program_name)
 {
     printf("usage: %s DEVICE COMMAND UNIT ADDRESS [RANGE] [VALUE]\n", program_name);
-    printf("\DEVICE   = a TTY device\n");
+    printf("\tDEVICE   = a TTY device\n");
     printf("\tCOMMAND = read | write\n");    
+    printf("\tUNIT    = address of unit\n");    
     printf("\tADDRESS = 0x0000 - 0xFFFF (register address)\n");
     printf("\tRANGE   = 0x0000 - 0xFFFF (for command = read)\n");    
     printf("\tVALUE   = 0x0000 - 0xFFFF (for command = write)\n");    
@@ -40,7 +41,7 @@ int
 main(int argc, char **argv)
 {
     static char *device, *command;
-    long baudrate = 0;
+    long baudrate = 57600;   // Select for this device
     uint16_t unit, addr, value, range, i, verbose = 1;
     
     modbus_frame_t     *pkt;    
@@ -89,7 +90,7 @@ main(int argc, char **argv)
     }
 
     if (debug)
-        modbus_frame_print(pkt);
+        modbus_rtu_frame_print(pkt);
         
     // Send command
     if (modbus_serial_send(handle, pkt) != 0)
@@ -97,6 +98,10 @@ main(int argc, char **argv)
         printf("%s: modbus_serial_send failed: %s.\n", __PRETTY_FUNCTION__, modbus_error_str);
         return 0;       
     }
+
+    // Question:
+    // does modbus_serial_recv wait for the packet?
+    // Is there any select on the file descriptor?? 
 
     // recv response
     if (modbus_serial_recv(handle, pkt) != 0)
@@ -112,7 +117,7 @@ main(int argc, char **argv)
     }
 
     if (debug)
-        modbus_frame_print(pkt);
+        modbus_rtu_frame_print(pkt);
 
     if (strcmp(command, "read") == 0)
     {

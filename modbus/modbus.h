@@ -20,12 +20,12 @@ extern char modbus_error_str[256];
 //
 // Modbus TCP Frame Format
 // Name 	                Length 	    Function
-// Transaction Identifier 	2 bytes 	For synchronization between messages of server & client
-// Protocol Identifier 	    2 bytes 	Zero for MODBUS/TCP
-// Length Field 	        2 bytes 	Number of remaining bytes in this frame
+// Transaction Identifier 	2 bytes     For synchronization between messages of server & client
+// Protocol Identifier 	        2 bytes     Zero for MODBUS/TCP
+// Length Field 	        2 bytes     Number of remaining bytes in this frame
 // Unit Identifier 	        1 byte 	    Slave Address (255 if not used)
 // Function code 	        1 byte 	    Function codes as in other variants
-// Data bytes 	            n bytes 	Data as response or commands
+// Data bytes 	                n bytes     Data as response or commands
 //
 // Source: http://en.wikipedia.org/wiki/Modbus
 //
@@ -33,12 +33,10 @@ extern char modbus_error_str[256];
 //
 // Modbus RTU Frame Format
 // Name 	                Length 	    Function
-// Transaction Identifier 	2 bytes 	For synchronization between messages of server & client
-// Protocol Identifier 	    2 bytes 	Zero for MODBUS/TCP
-// Length Field 	        2 bytes 	Number of remaining bytes in this frame
 // Unit Identifier 	        1 byte 	    Slave Address (255 if not used)
 // Function code 	        1 byte 	    Function codes as in other variants
-// Data bytes 	            n bytes 	Data as response or commands
+// Data bytes 	                n bytes     Data as response or commands
+// CRC           	        2 byte 	    CRC code for unit+FC+data
 //
 // Source: http://en.wikipedia.org/wiki/Modbus
 //
@@ -83,6 +81,7 @@ typedef struct _modbus_frame {
     uint16_t data_buff_len;
     char *data_buff;    
     
+    uint8_t crc1, crc2;
     int response_length;
     
 } modbus_frame_t;

@@ -93,6 +93,33 @@ modbus_frame_print(modbus_frame_t *pkt)
     }
 }
 
+void
+modbus_rtu_frame_print(modbus_frame_t *pkt)
+{
+    uint16_t i;
+    
+    if (pkt)
+    {
+        printf("MODBUS: RTU frame DUMP\n");
+        printf("MODBUS: unit id       = %.2X\n", pkt->hdr_rtu.unit      & 0xFF);
+        printf("MODBUS: function code = %.2X\n", pkt->hdr_rtu.func_code & 0xFF);
+        
+        printf("MODBUS: # bytes data  = %.2X\n", pkt->data_buff_len & 0xFF);
+        if (pkt->data_buff_len > 0)
+        {
+            printf("MODBUS: data :");
+            for (i = 0; i < pkt->data_buff_len; i++)
+            {
+                printf("%.2X:", pkt->data_buff[i] & 0xFF);
+            }
+            printf("\n");
+        }
+        printf("MODBUS: CRC = %.2X %.2X\n", pkt->crc1 & 0xFF, pkt->crc2 & 0xFF);
+        printf("MODBUS: DONE\n\n");
+    }
+}
+
+
 
 //------------------------------------------------------------------------------
 // Parse binary data and setup frame data structure
@@ -241,7 +268,7 @@ modbus_rtu_frame_parse(modbus_frame_t *pkt, char *data, size_t data_size)
 {
     uint16_t len, i, idx;
     
-    if (data_size < MODBUS_TCP_HEADER_LENGTH)
+    if (data_size < MODBUS_RTU_HEADER_LENGTH)
     {
         // too small data. it cannot fit a proper modbus frame
         printf("data_size(%zu) < MODBUS_RTU_HEADER_LENGTH\n", data_size);
@@ -254,7 +281,7 @@ modbus_rtu_frame_parse(modbus_frame_t *pkt, char *data, size_t data_size)
     pkt->hdr_tcp.func_code    = data[idx++];
             
     //len = (pkt->hdr_tcp.length2 + pkt->hdr_tcp.length1 * 256) - 2;
-    len = data_size - 2;
+    len = data_size - 4;
 
     //if ((size_t)(MODBUS_TCP_HEADER_LENGTH + len) != data_size)
     //{
@@ -282,7 +309,12 @@ modbus_rtu_frame_parse(modbus_frame_t *pkt, char *data, size_t data_size)
             pkt->data_buff[i] = data[idx++];  
         }
     }
-    
+
+    pkt->crc1 = data[idx++];
+    pkt->crc2 = data[idx++];
+
+    pkt->frame_type = MD_FRAME_TYPE_RTU;
+ 
     return 0;
 }
 

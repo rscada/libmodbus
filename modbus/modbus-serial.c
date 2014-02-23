@@ -69,8 +69,7 @@ modbus_serial_connect(char *device, long baudrate)
     handle->t.c_cflag &= ~PARODD;
     handle->t.c_cflag &= ~CSTOPB;
     handle->t.c_cflag &= ~CSIZE;
-    handle->t.c_cflag |= CS7;    
-    
+    handle->t.c_cflag |= CS8;    
     handle->t.c_cc[VMIN]  = 0;
     handle->t.c_cc[VTIME] = 10;
 
@@ -206,18 +205,28 @@ int
 modbus_serial_recv(modbus_serial_handle_t *handle, modbus_frame_t *pkt)
 {
     u_char buff[frame_BUFF_SIZE];
-    int len, ret, i;
+    int len, ret, i, remaining, nread;
     
     bzero((void *)buff, sizeof(buff));
         
     //
     // first read the MODBUS header
     //
-    if (read(handle->fd, buff, MODBUS_RTU_HEADER_LENGTH+1) != MODBUS_RTU_HEADER_LENGTH+1)
-    {
-	    snprintf(modbus_error_str, sizeof(modbus_error_str),
-		         "%s: failed to read modbus header from serial device", __PRETTY_FUNCTION__);
-        return -1;
+    // You never know how many chars there is on the serial port
+    // you must asamble and then parse the the packet...???
+    remaining = MODBUS_RTU_HEADER_LENGTH+1;
+    nread = 0;
+
+    while (remaining > 0)
+    {  
+        if ((ret = read(handle->fd, &buff[nread], remaining)) == -1)
+        {
+            snprintf(modbus_error_str, sizeof(modbus_error_str),
+	             "%s: failed to read modbus header from serial device [%d, %d]", __PRETTY_FUNCTION__, ret, nread);
+            return -1;
+        }
+        nread += ret;
+        remaining -= ret;
     }
 
     modbus_rtu_header_parse(pkt, buff, MODBUS_RTU_HEADER_LENGTH);
@@ -243,12 +252,20 @@ modbus_serial_recv(modbus_serial_handle_t *handle, modbus_frame_t *pkt)
             len = 8;
     }
 
-    if (read(handle->fd, &buff[MODBUS_RTU_HEADER_LENGTH+1], len) != len)
+    remaining = len;
+
+    while (remaining > 0)
     {
-	    snprintf(modbus_error_str, sizeof(modbus_error_str),
-		         "%s: failed to read remaining modbus data from tcp socket", __PRETTY_FUNCTION__);
-        return -1;
+        if ((ret = read(handle->fd, &buff[nread], remaining)) == -1)
+        {
+            snprintf(modbus_error_str, sizeof(modbus_error_str),
+                     "%s: failed to read modbus header from serial device [%d, %d]", __PRETTY_FUNCTION__, ret, nread);
+            return -1;
+        }
+        nread += ret;
+        remaining -= ret;
     }
+
 
     if (debug)
     {
