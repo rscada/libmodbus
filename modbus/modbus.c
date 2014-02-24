@@ -281,7 +281,7 @@ modbus_rtu_frame_parse(modbus_frame_t *pkt, char *data, size_t data_size)
     pkt->hdr_tcp.func_code    = data[idx++];
             
     //len = (pkt->hdr_tcp.length2 + pkt->hdr_tcp.length1 * 256) - 2;
-    len = data_size - 4;
+    len = data_size - 4 + 1;
 
     //if ((size_t)(MODBUS_TCP_HEADER_LENGTH + len) != data_size)
     //{
