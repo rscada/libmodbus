@@ -338,8 +338,8 @@ modbus_rtu_frame_pack(modbus_frame_t *pkt, char *data_buff, size_t data_buff_siz
 
     idx = 0;
     
-    data_buff[idx++] = pkt->hdr_tcp.unit;
-    data_buff[idx++] = pkt->hdr_tcp.func_code;
+    data_buff[idx++] = pkt->hdr_rtu.unit;
+    data_buff[idx++] = pkt->hdr_rtu.func_code;
     
     for (i = 0; i < pkt->data_buff_len; i++)
     {
