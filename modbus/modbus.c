@@ -480,6 +480,7 @@ modbus_frame_set_unit(modbus_frame_t *pkt, char val)
     if (pkt)
     {
         pkt->hdr_tcp.unit = val;
+        pkt->hdr_rtu.unit = val;
     }
     
     return 0;
@@ -495,6 +496,7 @@ modbus_frame_set_function(modbus_frame_t *pkt, char val)
     if (pkt)
     {
         pkt->hdr_tcp.func_code = val;
+        pkt->hdr_rtu.func_code = val;
     }
     
     return 0;
