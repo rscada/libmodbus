@@ -362,10 +362,10 @@ crc16(char *data_buff, size_t data_buff_size)
 {
     int i, j;
     uint16_t crc = 0xFFFF;
- 
+
     for (i = 0; i < data_buff_size; i++)
     {
-        crc ^= (uint16_t)data_buff[i];
+        crc ^= ((uint16_t)data_buff[i] & 0x00FF);
  
         for (j = 8; j; j--) 
         {
