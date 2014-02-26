@@ -29,7 +29,7 @@
 #define frame_BUFF_SIZE 2048
 
 //#define MODBUS_HEADER_LENGTH + len
-static int debug = 1;
+static int debug = 0;
 
 //------------------------------------------------------------------------------
 /// Set up a serial connection handle.
