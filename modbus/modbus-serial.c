@@ -57,7 +57,7 @@ modbus_serial_connect(char *device, long baudrate)
     //
 
     // Use blocking read and handle it by serial port VMIN/VTIME setting
-    if ((handle->fd = open(handle->device, O_RDWR | O_NOCTTY)) < 0)
+    if ((handle->fd = open(handle->device, O_RDWR | O_NOCTTY |  O_NDELAY)) < 0)
     {
         fprintf(stderr, "%s: failed to open tty.", __PRETTY_FUNCTION__);
         return NULL;
@@ -117,6 +117,11 @@ modbus_serial_set_baudrate(modbus_serial_handle_t *handle, long baudrate)
         case 9600:
             cfsetispeed(&(handle->t), B9600);
             cfsetospeed(&(handle->t), B9600);
+            return 0;
+
+        case 19200:
+            cfsetispeed(&(handle->t), B19200);
+            cfsetospeed(&(handle->t), B19200);
             return 0;
             
         case 38400:
